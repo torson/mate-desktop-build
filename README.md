@@ -21,13 +21,13 @@ https://salsa.debian.org/debian-mate-team/
 There exists https://github.com/mate-desktop/debian-packages that contains debian folders for all packages, but is outdated and causes build errors. That's why we're using the ones from https://salsa.debian.org/debian-mate-team which are being updated.
 
 Packages that are being built are set inside envvar `MATE_PACKAGES`.
-
+Modify the content of the list to suit your needs, maybe you need just a single package be upgraded.
 
 # Steps
 
 ### 1. Start and get into the Ubuntu 20.04 Focal container.
-This will mount the current path where the deb packages will be available at the end inside the `00-mate-deb-packages` folder together with `install.sh`.
-With using `--rm` the container and all it's content will be removed after you exit.
+This will mount the current path. All files are going to be created inside folder `build`, the deb packages will be available inside `build/00-mate-deb-packages` folder together with `install.sh`.
+With using `--rm` the container and all it's content (but not the mounted current path) will be removed after you exit.
 
 ```
 docker run --rm -it -v $(pwd):/mount -w /mount ubuntu:focal
@@ -39,12 +39,12 @@ docker run --rm -it -v $(pwd):/mount -w /mount ubuntu:focal
 ./build.sh
 ```
 
-At the end it outputs the command to run to install the packages.
+At the end it outputs the command to run in a new terminal outside the container to install the packages.
 
 
 ### 3. In a new terminal on your host:
 
-> If you're using btrfs you should first create a snapshot of both system and home volume,  just in case something breaks.
+If you're using btrfs you should first create a snapshot of both system and home volume,  just in case something breaks.
 
 Run the command from previous step and one to fix dependency issues:
 
@@ -61,12 +61,9 @@ In case of issues revert the package that is causing the issue. For `mate-indica
 apt-get install mate-indicator-applet=1.26.0-0ubuntu1~focal2.3 mate-indicator-applet-common=1.26.0-0ubuntu1~focal2.3
 ```
 
-`mate-indicator-applet` is actually having trouble, it is showing `No indicators` , that's  why I've removed it from the envvar `MATE_PACKAGES`.
-
 # Issues
 
 A few packages are not in the build list `MATE_PACKAGES` due to issues as of May 29th 2022 :
 
 - `atril` ; error during build : dpkg-gensymbols: error: some symbols or patterns disappeared in the symbols file: see diff output below
 - `mate-indicator-applet` ; indicator applet is showing text `No indicators`
-- `mate-session-manager` ; not updating due to conflicting package debian-mate-default-settings, not sure what to do with this

@@ -6,36 +6,11 @@ set -e
 # - we're rebuilding only "mate-*" packages
 # - we're stripping :amd64 from the name
 
-## not updating directly (some are being built as part of the below packages)
-# gir1.2-matedesktop-2.0:amd64
-# gir1.2-matemenu-2.0:amd64
-# gir1.2-matepanelapplet-4.0:amd64
-# libmate-desktop-2-17:amd64
-# libmate-menu2:amd64
-# libmate-panel-applet-4-1:amd64
-# libmate-sensors-applet-plugin0
-# libmate-slab0:amd64
-# libmate-window-settings1:amd64
-# libmatedict6
-# libmatekbd-common
-# libmatekbd4:amd64
-# libmatemixer-common
-# libmatemixer0:amd64
-# libmateweather-common
-# libmateweather1:amd64
-# mate-icon-theme
-# ubuntu-mate-core
-# ubuntu-mate-desktop
-
-## not updating due to conflicting package debian-mate-default-settings, not sure what to do with this
-# mate-session-manager
-
 ## not updating due to issues after install
 # mate-indicator-applet         # indicator is showing "No indicators"
 
 ## not updating due to error
 # atril       # dpkg-gensymbols: error: some symbols or patterns disappeared in the symbols file: see diff output below
-
 
 # these are names of the Github repos, which are also the same as the names of deb packages
 MATE_PACKAGES="
@@ -56,6 +31,7 @@ mate-polkit
 mate-power-manager
 mate-screensaver
 mate-sensors-applet
+mate-session-manager
 mate-settings-daemon
 mate-system-monitor
 mate-terminal
@@ -72,11 +48,11 @@ debian-mate-default-settings
 # set the base version of the packages ; reusing the latest tag (1.26.1)
 # later on we're adding the branch name that's being used (default is master in all the repos) together with the latest commit hash
 VER="1.26.1"
-DEFAULT_BRANCH=master
+DEFAULT_BRANCH="master"
 
-RESULTING_PACKAGES_FOLDER=00-mate-deb-packages
+RESULTING_PACKAGES_FOLDER="00-mate-deb-packages"
 
-INSTALL_MATE_DEV_PACKAGES_ALSO=false
+INSTALL_MATE_DEV_PACKAGES_ALSO="false"
 
 [ -d build ] || mkdir build
 cd build
@@ -176,57 +152,6 @@ fi
 
 # rebuilding mate packages
 
-# fetching repo that contains debian folders for all packages
-# > not using it as it's outdated and causes build errors, we're using debian packages which are being updated
-# if [ ! -d mate-debian-packages ]; then
-#     run_command git clone https://github.com/mate-desktop/debian-packages mate-debian-packages
-# fi
-
-## not needed really as repos have this submodule set up, one just needs to tweak them a bit to use it
-# mate-panel depends on package mate-submodules-source so we need to first build this one
-#   dpkg-checkbuilddeps: error: Unmet build dependencies: mate-submodules-source (>= 0.0~git20210623.f3091f9)
-# if ! dpkg -l | grep mate-submodules-source ; then
-#     git clone https://github.com/mate-desktop/mate-submodules.git
-#     cd mate-submodules
-
-#     ln -s ../ltmain.sh
-
-#     # running stuff gotten from mate-submodules/.build.yml
-#     # first required packages (cppcheck is not there in the list but is required)
-#     apt-get install -y autoconf-archive autopoint clang clang-tools gcc git libglib2.0-dev libgtk-3-dev make mate-common meson cppcheck
-
-#     # setting DISTRO_NAME=debian as that's what the build code is leaning on. We just reuse the whole code so if it updates in the
-#     # future we can just copy/paste it
-#     DISTRO_NAME=debian
-#     CPU_COUNT=4
-#     CHECKERS="-enable-checker deadcode.DeadStores -enable-checker alpha.deadcode.UnreachableCode -enable-checker alpha.core.CastSize -enable-checker alpha.core.CastToStruct -enable-checker alpha.core.IdenticalExpr -enable-checker alpha.core.SizeofPtr -enable-checker alpha.security.ArrayBoundV2 -enable-checker alpha.security.MallocOverflow -enable-checker alpha.security.ReturnPtrRange -enable-checker alpha.unix.SimpleStream -enable-checker alpha.unix.cstring.BufferOverlap -enable-checker alpha.unix.cstring.NotNullTerminated -enable-checker alpha.unix.cstring.OutOfBounds -enable-checker alpha.core.FixedAddr -enable-checker security.insecureAPI.strcpy"
-
-#     # build code from mate-submodules/.build.yml START
-#     if [ ${DISTRO_NAME} == "debian" ];then
-#         export CFLAGS+=" -Wsign-compare"
-#         cppcheck --enable=warning,style,performance,portability,information,missingInclude .
-#     fi
-#     autoreconf -fi
-#     scan-build $CHECKERS ./configure --enable-compile-warnings=maximum
-#     if [ $CPU_COUNT -gt 1 ]; then
-#         if [ ${DISTRO_NAME} == "debian" ];then
-#             scan-build $CHECKERS --keep-cc --use-cc=clang --use-c++=clang++ -o html-report make -j $(( $CPU_COUNT + 1 ))
-#             make clean
-#         fi
-#         scan-build $CHECKERS --keep-cc -o html-report make -j $(( $CPU_COUNT + 1 ))
-#     else
-#         if [ ${DISTRO_NAME} == "debian" ];then
-#             scan-build $CHECKERS --keep-cc --use-cc=clang --use-c++=clang++ -o html-report make
-#             make clean
-#         fi
-#         scan-build $CHECKERS --keep-cc -o html-report make
-#     fi
-#     # build code from mate-submodules/.build.yml END
-
-#     # create package and install it
-#     checkinstall -y --install=yes --pkgname=mate-submodules-source --pkgversion=0.0~git$(date "+%Y%m%d") --pkggroup=Application/Accessories
-# fi
-
 for PKG in $(echo "${MATE_PACKAGES}"); do
     # setting CPU_COUNT to max, as we could have set it to 1 for specific packages due to race condition errors
     CPU_COUNT=$(nproc)
@@ -237,15 +162,6 @@ for PKG in $(echo "${MATE_PACKAGES}"); do
     [ -d ${PKG} ] || mkdir ${PKG}
     cd ${PKG}
     # > at build/PKG level
-
-    # in the output of `apt-get source mate-screensaver` (all mate-* packages) it says:
-    #    NOTICE: 'mate-screensaver' packaging is maintained in the 'Git' version control system at:
-    #    https://salsa.debian.org/debian-mate-team/mate-screensaver.git
-    #    Please use:
-    #    git clone https://salsa.debian.org/debian-mate-team/mate-screensaver.git
-    #    to retrieve the latest (possibly unreleased) updates to the package.
-    # ; in that repo there's the updated content of mate-screensaver_1.26.0-0ubuntu1~focal2.0.debian.tar.xz that contains
-    # the debian folder of the package (mate-screensaver-1.26.0/debian) that got created with `apt-get source mate-screensaver`
 
     ## 4 steps in rebuilding the package with the latest updates
     # 1. clone the package content (A) (https://github.com/mate-desktop/mate-screensaver)
@@ -299,7 +215,7 @@ for PKG in $(echo "${MATE_PACKAGES}"); do
     cd ..
 
     # a) using mate-debian-packages
-    #    > these are actualy not ok because packages file set has differed, this repo is not kept up to date and so the build process fails due to inconsistent file listing for some packages.
+    #    > these are actualy not ok because packages file set has differed, this repo is not kept up to date and so the build process fails due to inconsistent file set for some packages.
     #    > salsa.debian.org repos are being updated
     # cp -R ../mate-debian-packages/${PKG}/debian ${PKG}/
 

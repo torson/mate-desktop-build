@@ -301,7 +301,7 @@ cd ..
 
 echo "#########################" ; echo
 log "Packages build process finished. Inspect and run file ${RESULTING_PACKAGES_FOLDER}/install.sh :"
-echo "                                         cd ${RESULTING_PACKAGES_FOLDER} ; ./install.sh "
+echo "                                         cd ${RESULTING_PACKAGES_FOLDER} ; sudo bash install.sh "
 
 # removing leftover ltmain.sh
 if [ -f ltmain.sh ]; then rm ltmain.sh ; fi

@@ -50,9 +50,10 @@ Run the command from previous step and one to fix dependency issues:
 
 ```
 cd build/00-mate-deb-packages
-bash install.sh
+sudo bash install.sh
 
-apt-get -f install
+# fix dependency issues
+sudo apt-get -f install
 ```
 
 In case of issues revert the package that is causing the issue. For `mate-indicator-applet` that would be (check for the latest working package version with `apt-cache policy mate-indicator-applet`) :
@@ -63,7 +64,7 @@ apt-get install mate-indicator-applet=1.26.0-0ubuntu1~focal2.3 mate-indicator-ap
 
 # Issues
 
-A few packages are not in the build list `MATE_PACKAGES` due to issues as of May 29th 2022 :
+A couple packages are not in the build list `MATE_PACKAGES` due to issues as of May 29th 2022 :
 
 - `atril` ; error during build : dpkg-gensymbols: error: some symbols or patterns disappeared in the symbols file: see diff output below
 - `mate-indicator-applet` ; the package builds ok but then after reboot the indicator applet is showing text `No indicators`

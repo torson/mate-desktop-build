@@ -49,7 +49,7 @@ If you're using btrfs you should first create a snapshot of both system and home
 Run the command from previous step and one to fix dependency issues:
 
 ```
-cd 00-mate-deb-packages
+cd build/00-mate-deb-packages
 bash install.sh
 
 apt-get -f install
@@ -66,4 +66,4 @@ apt-get install mate-indicator-applet=1.26.0-0ubuntu1~focal2.3 mate-indicator-ap
 A few packages are not in the build list `MATE_PACKAGES` due to issues as of May 29th 2022 :
 
 - `atril` ; error during build : dpkg-gensymbols: error: some symbols or patterns disappeared in the symbols file: see diff output below
-- `mate-indicator-applet` ; indicator applet is showing text `No indicators`
+- `mate-indicator-applet` ; the package builds ok but then after reboot the indicator applet is showing text `No indicators`

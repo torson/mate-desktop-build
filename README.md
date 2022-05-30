@@ -4,8 +4,8 @@ It builds from branch `master` for all repos.
 You can also specify the branch in the script per package under `# setting custom branches for specific repos`
 
 The procedure of rebuilding the package with the latest updates constists of 4 steps:
-1. clone the package content (A) (https://github.com/mate-desktop/mate-screensaver)
-2. clone the package meta content (B) (https://salsa.debian.org/debian-mate-team/mate-screensaver.git)
+1. clone the repo with package content (A) (https://github.com/mate-desktop/mate-screensaver)
+2. clone the repo package meta content / debian folder (B) (https://salsa.debian.org/debian-mate-team/mate-screensaver.git)
 3. copy the debian folder (B) with cleared `patches` folder to (A) .
 4. update the `debian/changelog` with the new version and rebuild the package with `dpkg-buildpackage`
 

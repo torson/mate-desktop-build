@@ -123,10 +123,10 @@ log() { echo -e "\n--> $(date) : $1" ; }
 
 if [ ! -f /system_prepare.done ]; then
     echo "upgrade all packages" && \
-    apt-get update && \
+    run_command apt-get update && \
     apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade && \
     echo "install basic packages" && \
-    apt-get -y install \
+    run_command apt-get -y install \
             ca-certificates \
             less \
             lsb-release \
@@ -137,17 +137,17 @@ if [ ! -f /system_prepare.done ]; then
             curl \
             checkinstall
 
-    apt-get install -y build-essential make automake dh-make git
-    # dependencies for dpkg-buildpackage
-    apt-get install -y debhelper=13.5.2ubuntu1~bpo20.04.1 libdebhelper-perl=13.5.2ubuntu1~bpo20.04.1
+    run_command apt-get install -y build-essential make automake dh-make git
+    # dependencies for dpkg-buildpackage from focal-backports
+    run_command apt-get install -y -t focal-backports debhelper libdebhelper-perl
 
-    add-apt-repository -y ppa:ubuntu-mate-dev/fresh-mate
+    run_command add-apt-repository -y ppa:ubuntu-mate-dev/fresh-mate
     # enable sources for mate packages
     sed -i -r 's/^# //' /etc/apt/sources.list.d/ubuntu-mate-dev-ubuntu-fresh-mate-focal.list
 
-    apt update
+    run_command apt update
 
-    touch /system_prepare.done
+    run_command touch /system_prepare.done
 fi
 
 # rebuilding mate packages
